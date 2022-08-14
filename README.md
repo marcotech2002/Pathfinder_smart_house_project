@@ -1,1 +1,1 @@
-# Pathfinder_smart_house_project
+# Projeto de uma casa inteligente
