@@ -20,7 +20,6 @@ void setup()
 
 void loop() 
 {
-
   ledDistancia();
   ledLuminosidade();
   delay(500);// espera de 500 milissegundos
@@ -54,7 +53,7 @@ void ledLuminosidade()
   Serial.println(estado);
   delay(30);
   
-  if (estado > 700 ) //Se o estado for maior que 700 (pouca luminosidade)
+  if (estado > 900) //Se o estado for maior que 700 (pouca luminosidade)
     digitalWrite(LED1, HIGH); //Liga o LED1
   else
     digitalWrite(LED1, LOW);
