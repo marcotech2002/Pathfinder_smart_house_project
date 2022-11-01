@@ -1,14 +1,22 @@
 #include "Ultrasonic.h"
+#include <Servo.h>
+#include <IRremote.h>
 
 //Declarando os LEDs e sensores
-const int LED = 4;
+const int LED = 4; // Portas digitais para LED's
 const int LED1 = 8;
-const int LDR = A5;
+const int LDR = A5;  // Porta analógica para litura do sensor de luz
+const int SERVO_PIN = 11; // Precisa ser um pino PWN
+int IR_RECEIVE_PIN = 13; // Recebe o sinal do sensor infravermelho
+IRrecv infraredReceiver(IR_RECEIVE_PIN);
+decode_results results; //valor retornado do decoder 
+Servo s; //declaração obj Servo
 Ultrasonic ultrasonic(2, 3); // Trigger na porta 2 e Echo na porta 3
 
 // variaveis de controle
 float distanciaCM = 0;
 int estado = 0;
+int sentido = -1;
 
 void setup() 
 {
@@ -16,13 +24,17 @@ void setup()
   Serial.begin(9600);
   pinMode(LED, OUTPUT); 
   pinMode(LED1, OUTPUT);
+  infraredReceiver.enableIRIn();
+  s.attach(SERVO_PIN);
+  s.write(0);
 }
 
 void loop() 
 {
   ledDistancia();
   ledLuminosidade();
-  delay(500);// espera de 500 milissegundos
+  controlePortao();
+  delay(300);// espera de 500 milissegundos
 }
 
 void ledDistancia() 
@@ -51,10 +63,38 @@ void ledLuminosidade()
   Serial.println("-------------------------------------------------------------------");
   Serial.print("Leitura do LDR: ");
   Serial.println(estado);
-  delay(30);
   
   if (estado > 900) //Se o estado for maior que 700 (pouca luminosidade)
     digitalWrite(LED1, HIGH); //Liga o LED1
   else
     digitalWrite(LED1, LOW);
+}
+
+void controlePortao()
+{
+  results.value = 0; // Zera os registradores
+  if (infraredReceiver.decode(&results))// Verificar se algum valor foi recebido 
+  {
+    Serial.println("-------------------------------------------------------------------");
+    Serial.print("Botao: "); // Escreve o código no serial monitor
+    Serial.println(results.value, HEX);
+    infraredReceiver.resume(); // Reinicializa o receptor
+  }
+  if(results.value == 0xFFA25D) // Verifica se o botão 1 foi pressionado
+  {   
+    if(sentido == -1)
+    {
+      Serial.print("Movimento do portão: ");
+      Serial.println("Abriu");
+      sentido = 1;
+      s.write(90);
+    }
+    else
+    {
+      Serial.print("Movimento do portão: ");
+      Serial.println("Fechou");
+      sentido = -1;
+      s.write(0); 
+    }
+  }
 }
