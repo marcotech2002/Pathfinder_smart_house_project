@@ -17,6 +17,7 @@ Ultrasonic ultrasonic(2, 3); // Trigger na porta 2 e Echo na porta 3
 float distanciaCM = 0;
 int estado = 0;
 int sentido = -1;
+int ligado = 0;
 
 void setup() 
 {
@@ -34,7 +35,7 @@ void loop()
   ledDistancia();
   ledLuminosidade();
   controlePortao();
-  delay(300);// espera de 500 milissegundos
+  delay(300);// espera de 300 milissegundos
 }
 
 void ledDistancia() 
@@ -47,13 +48,22 @@ void ledDistancia()
   Serial.print("Leitura do ultrassonico: ");
   Serial.print(distanciaCM);// mostrar a distancia na porta serial
   Serial.println(" cm");// colocar unidade de medida
-
-  //Desliga o LED
-  digitalWrite(LED, LOW);
   
   // criando as condições se a distancia for entre 30 cm e 20 cm
-  if (distanciaCM <= 5 and distanciaCM >= 1) 
-    digitalWrite(LED, HIGH); //liga o LED
+  if (distanciaCM <= 10 and distanciaCM >= 1) 
+  {
+    if(ligado == 0)
+    {
+      digitalWrite(LED, HIGH); //liga o LED
+      ligado = 1;
+    }
+    else
+    {
+      digitalWrite(LED, LOW); //desliga o LED
+      ligado = 0;
+    }
+  }
+
 }
 
 void ledLuminosidade()
